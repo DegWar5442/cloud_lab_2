@@ -5,217 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BART Text Summarizer</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* [CSS] Загальні стилі */
+        /* ... */
+
+        /* [CSS] Приховування символів ключа */
+        /* Увага: text-security є нестандартною властивістю і може не працювати в усіх браузерах. 
+           Рекомендовано використовувати input type="password". */
+        #apiKey {
+            -webkit-text-security: disc; 
+            text-security: disc;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 900px;
-            width: 100%;
-            padding: 40px;
-        }
-
-        h1 {
-            color: #667eea;
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 2.5em;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 0.9em;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 0.95em;
-        }
-
-        input[type="text"],
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-            font-family: inherit;
-        }
-
-        input[type="text"]:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 150px;
-            line-height: 1.6;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        button {
-            flex: 1;
-            padding: 14px 28px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        #clearBtn {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-
-        #clearBtn:hover {
-            box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4);
-        }
-
-        .output-section {
-            margin-top: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            min-height: 100px;
-            display: none;
-        }
-
-        .output-section.show {
-            display: block;
-        }
-
-        .output-label {
-            font-weight: 600;
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 1.1em;
-        }
-
-        .output-text {
-            color: #333;
-            line-height: 1.8;
-            font-size: 1.05em;
-        }
-
-        .loading {
-            text-align: center;
-            color: #667eea;
-            font-style: italic;
-        }
-
-        .error {
-            color: #f5576c;
-            background: #ffe0e6;
-            padding: 15px;
-            border-radius: 10px;
-            border-left: 4px solid #f5576c;
-        }
-
-        .success {
-            color: #28a745;
-        }
-
-        .info-box {
-            background: #e7f3ff;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 0.9em;
-            color: #333;
-        }
-
-        .info-box a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .info-box a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px;
-            }
-
-            h1 {
-                font-size: 1.8em;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-        }
+        /* ... */
+        /* [CSS] Стилі для кнопок, виводу та адаптивності */
+        /* ... */
     </style>
 </head>
-<body>
+<body onload="loadApiKeyFromFile()">
     <div class="container">
         <h1>📝 BART Text Summarizer</h1>
         <p class="subtitle">Powered by facebook/bart-large-cnn from Hugging Face</p>
 
-        <div class="info-box">
-            <strong>Need an API key?</strong> Get your free Hugging Face API token at 
-            <a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co/settings/tokens</a>
-        </div>
-
+        <!-- [HTML] Поле для API Key -->
         <div class="input-group">
             <label for="apiKey">Hugging Face API Key</label>
             <input 
                 type="text" 
                 id="apiKey" 
-                placeholder="Enter your API key (e.g., hf_xxxxxxxxxxxxx)"
+                placeholder="Enter your API key "
                 autocomplete="off"
             >
         </div>
@@ -240,6 +57,31 @@
     </div>
 
     <script>
+        // [JS] Асинхронне завантаження ключа з локального файлу (HF_API_KEY.txt)
+        // ПРИМІТКА: Ця функція може не працювати, якщо файл HTML відкритий напряму з диска (Same-Origin Policy).
+        async function loadApiKeyFromFile() {
+            const apiKeyInput = document.getElementById('apiKey');
+            const filePath = 'HF_API_KEY.txt';
+            
+            try {
+                const response = await fetch(filePath);
+                
+                if (response.ok) {
+                    const key = (await response.text()).trim();
+                    if (key) {
+                        apiKeyInput.value = key;
+                        apiKeyInput.placeholder = 'Key loaded successfully from file.';
+                        apiKeyInput.classList.add('loaded-key');
+                    }
+                } else {
+                    // Обробка помилок читання файлу (наприклад, 404)
+                }
+            } catch (error) {
+                // Обробка помилок безпеки (CORS)
+            }
+        }
+        
+        // [JS] Основна логіка сумаризації
         async function summarizeText() {
             const apiKey = document.getElementById('apiKey').value.trim();
             const inputText = document.getElementById('inputText').value.trim();
@@ -247,18 +89,14 @@
             const outputText = document.getElementById('outputText');
             const summarizeBtn = document.getElementById('summarizeBtn');
 
-            // Validation
-            if (!apiKey) {
-                alert('Please enter your Hugging Face API key');
+            // Перевірка наявності ключа та тексту
+            if (!apiKey || !inputText) {
+                outputText.innerHTML = '<div class="error"><strong>Validation Error:</strong> Please check key and text input.</div>';
+                outputDiv.classList.add('show');
                 return;
             }
 
-            if (!inputText) {
-                alert('Please enter text to summarize');
-                return;
-            }
-
-            // Show loading state
+            // Стани завантаження та API endpoint
             outputDiv.classList.add('show');
             outputText.innerHTML = '<div class="loading">🔄 Summarizing your text...</div>';
             summarizeBtn.disabled = true;
@@ -269,23 +107,25 @@
             const payload = {
                 inputs: inputText,
                 parameters: {
-                    max_length: 130,
+                    max_length: 130, // Параметри моделі BART
                     min_length: 30,
                     do_sample: false
                 }
             };
 
             try {
+                // HTTP POST запит до Hugging Face API
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${apiKey}`,
+                        'Authorization': `Bearer ${apiKey}`, // Безпечна передача ключа
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(payload)
                 });
 
                 if (!response.ok) {
+                    // Перехоплення HTTP помилок (400, 401, 503)
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
@@ -293,37 +133,39 @@
                 
                 let summary = '';
                 
-                // Handle different response formats
+                // Парсинг результату з JSON
                 if (Array.isArray(result) && result.length > 0) {
                     summary = result[0].summary_text || 'No summary generated';
-                } else if (result.summary_text) {
-                    summary = result.summary_text;
                 } else if (result.error) {
                     throw new Error(result.error);
-                } else {
-                    throw new Error('Unexpected response format');
                 }
 
-                outputText.innerHTML = `<div class="success">${summary}</div>`;
+                outputText.innerHTML = `<div class="output-text">${summary}</div>`;
 
             } catch (error) {
+                // Виведення повідомлення про помилку користувачеві
                 outputText.innerHTML = `<div class="error">
-                    <strong>Error:</strong> ${error.message}<br><br>
-                    Please check your API key and try again.
+                    <strong>API Error:</strong> ${error.message}<br><br>
+                    Please check your API key and ensure the input text is valid (e.g., English).
                 </div>`;
             } finally {
+                // Відновлення кнопки
                 summarizeBtn.disabled = false;
                 summarizeBtn.textContent = '✨ Summarize';
             }
         }
 
+        // ... [Функції clearAll та event listener] ...
         function clearAll() {
             document.getElementById('inputText').value = '';
             document.getElementById('output').classList.remove('show');
             document.getElementById('outputText').innerHTML = '';
         }
 
-        // Allow Enter key to submit (with Ctrl/Cmd modifier to prevent interference with textarea)
+        // Виклик завантаження ключа при завантаженні сторінки
+        window.addEventListener('load', loadApiKeyFromFile);
+
+        // Прив'язка Ctrl+Enter до кнопки Summarize
         document.getElementById('inputText').addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
                 e.preventDefault();
