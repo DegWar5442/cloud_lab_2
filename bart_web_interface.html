@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BART Text Summarizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 150px;
+            line-height: 1.6;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #clearBtn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        #clearBtn:hover {
+            box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .output-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            min-height: 100px;
+            display: none;
+        }
+
+        .output-section.show {
+            display: block;
+        }
+
+        .output-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .output-text {
+            color: #333;
+            line-height: 1.8;
+            font-size: 1.05em;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-style: italic;
+        }
+
+        .error {
+            color: #f5576c;
+            background: #ffe0e6;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #f5576c;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #333;
+        }
+
+        .info-box a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .info-box a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 BART Text Summarizer</h1>
+        <p class="subtitle">Powered by facebook/bart-large-cnn from Hugging Face</p>
+
+        <div class="info-box">
+            <strong>Need an API key?</strong> Get your free Hugging Face API token at 
+            <a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co/settings/tokens</a>
+        </div>
+
+        <div class="input-group">
+            <label for="apiKey">Hugging Face API Key</label>
+            <input 
+                type="text" 
+                id="apiKey" 
+                placeholder="Enter your API key (e.g., hf_xxxxxxxxxxxxx)"
+                autocomplete="off"
+            >
+        </div>
+
+        <div class="input-group">
+            <label for="inputText">Text to Summarize</label>
+            <textarea 
+                id="inputText" 
+                placeholder="Paste your text here... The model works best with articles, news, or longer passages."
+            ></textarea>
+        </div>
+
+        <div class="button-group">
+            <button id="summarizeBtn" onclick="summarizeText()">✨ Summarize</button>
+            <button id="clearBtn" onclick="clearAll()">🗑️ Clear</button>
+        </div>
+
+        <div id="output" class="output-section">
+            <div class="output-label">Summary:</div>
+            <div id="outputText" class="output-text"></div>
+        </div>
+    </div>
+
+    <script>
+        async function summarizeText() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const inputText = document.getElementById('inputText').value.trim();
+            const outputDiv = document.getElementById('output');
+            const outputText = document.getElementById('outputText');
+            const summarizeBtn = document.getElementById('summarizeBtn');
+
+            // Validation
+            if (!apiKey) {
+                alert('Please enter your Hugging Face API key');
+                return;
+            }
+
+            if (!inputText) {
+                alert('Please enter text to summarize');
+                return;
+            }
+
+            // Show loading state
+            outputDiv.classList.add('show');
+            outputText.innerHTML = '<div class="loading">🔄 Summarizing your text...</div>';
+            summarizeBtn.disabled = true;
+            summarizeBtn.textContent = '⏳ Processing...';
+
+            const API_URL = "https://router.huggingface.co/hf-inference/models/facebook/bart-large-cnn";
+            
+            const payload = {
+                inputs: inputText,
+                parameters: {
+                    max_length: 130,
+                    min_length: 30,
+                    do_sample: false
+                }
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                let summary = '';
+                
+                // Handle different response formats
+                if (Array.isArray(result) && result.length > 0) {
+                    summary = result[0].summary_text || 'No summary generated';
+                } else if (result.summary_text) {
+                    summary = result.summary_text;
+                } else if (result.error) {
+                    throw new Error(result.error);
+                } else {
+                    throw new Error('Unexpected response format');
+                }
+
+                outputText.innerHTML = `<div class="success">${summary}</div>`;
+
+            } catch (error) {
+                outputText.innerHTML = `<div class="error">
+                    <strong>Error:</strong> ${error.message}<br><br>
+                    Please check your API key and try again.
+                </div>`;
+            } finally {
+                summarizeBtn.disabled = false;
+                summarizeBtn.textContent = '✨ Summarize';
+            }
+        }
+
+        function clearAll() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('output').classList.remove('show');
+            document.getElementById('outputText').innerHTML = '';
+        }
+
+        // Allow Enter key to submit (with Ctrl/Cmd modifier to prevent interference with textarea)
+        document.getElementById('inputText').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                summarizeText();
+            }
+        });
+    </script>
+</body>
+</html>
